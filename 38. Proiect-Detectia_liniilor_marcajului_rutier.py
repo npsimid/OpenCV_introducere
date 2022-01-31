@@ -14,7 +14,7 @@ def desenare_linii(img, linii):
 
     for linie in linii:
         for x1, y1, x2, y2, in linie:
-            cv.line(img_alba, (x1, y1), (x2, y2), (0, 255, 0), 5)
+            cv.line(img_alba, (x1, y1), (x2, y2), (0, 255, 0), 3)
 
     img = cv.addWeighted(img, 0.8, img_alba, 1, 0.0)
     return img
@@ -24,14 +24,15 @@ def procesare(img):
     latime = img.shape[1]
 
     puncte_regiune_interes = [(0, 0.92*inaltime),
-                              (0.48*latime, 0.59*inaltime),
+                              (0.48*latime, 0.6*inaltime),
                               (latime, 0.92*inaltime)]
 
     alb_negru = cv.cvtColor(img, cv.COLOR_BGR2GRAY)  # tranformarea in alb-negru
-    margini = cv.Canny(alb_negru, 50, 120) # detectarea marginilor
+    margini = cv.Canny(alb_negru, 50, 200) # detectarea marginilor
     img_taiata = regiune_interes(margini, np.array([puncte_regiune_interes], np.int32))
 
-    linii = cv.HoughLinesP(img_taiata, 1, np.pi/180, 50, 100, 5) # determinarea coodonatelor a 2 puncte pentru fiecare linie
+    linii = cv.HoughLinesP(img_taiata, rho=2, theta=np.pi/180, threshold=50,
+                           lines=np.array([]), minLineLength=20, maxLineGap=10) # determinarea coodonatelor a 2 puncte pentru fiecare linie
 
     img_linii = desenare_linii(img, linii)
     return img_linii
